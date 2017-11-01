@@ -42,7 +42,6 @@ app.get('/todos', (req, res) => {
   })
 });
 
-// GET /todos/12134
 app.get('/todos/:id', (req, res) => {
   var id = req.params.id;
   if (!ObjectId.isValid(id)) {
