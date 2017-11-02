@@ -15,7 +15,9 @@ const todos = [{
 },
 {
   _id: new ObjectId(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 12121
 }];
 
 beforeEach((done) => {
@@ -163,6 +165,55 @@ describe('POST /users', () => {
       .expect(400)
       .expect((res)=>{
         expect(res.body.message).toBe("User validation failed: email: Path `email` is required.");
+      })
+      .end((err, res)=>{
+        if (err){
+          return done(err);
+        }
+        done();
+      });
+  });
+});
+
+describe('PATCH /todos/:id', ()=>{
+  it('should update the todo', (done)=>{
+    var hexId = todos[0]._id;
+    var text = 'updated first test';
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        text,
+        completed: true
+      })
+      .expect(200)
+      .expect((res)=>{
+        expect(res).toBeTruthy();
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeTruthy();
+      })
+      .end((err, res)=>{
+        if (err){
+          return done(err);
+        }
+        done();
+      });
+  });
+
+  it('should clear completedAt when todo is not completed', (done)=>{
+    var hexId = todos[1]._id;
+    var text = 'new text for second todo';
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        text,
+        complete: false
+      })
+      .expect(200)
+      .expect((res)=>{
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBeNull();
       })
       .end((err, res)=>{
         if (err){
