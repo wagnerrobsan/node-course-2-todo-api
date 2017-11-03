@@ -147,33 +147,33 @@ describe('DELETE /todos', ()=>{
       .end(done);
   });
 });
-
-describe('POST /users', () => {
-  it('should not create user with invalid body data', (done) =>{
-    var wagner = {
-      name: 'Wagner Roberto',
-      email: 'wagner@cobham.com',
-      age: 37
-    };
-
-    request(app)
-      .post('/users')
-      .send({
-        name: 'Wagner Roberto',
-        age: 37
-      })
-      .expect(400)
-      .expect((res)=>{
-        expect(res.body.message).toBe("User validation failed: email: Path `email` is required.");
-      })
-      .end((err, res)=>{
-        if (err){
-          return done(err);
-        }
-        done();
-      });
-  });
-});
+// 
+// describe('POST /users', () => {
+//   it('should not create user with invalid body data', (done) =>{
+//     var wagner = {
+//       name: 'Wagner Roberto',
+//       email: 'wagner@cobham.com',
+//       age: 37
+//     };
+//
+//     request(app)
+//       .post('/users')
+//       .send({
+//         name: 'Wagner Roberto',
+//         age: 37
+//       })
+//       .expect(400)
+//       .expect((res)=>{
+//         expect(res.body.message).toBe("User validation failed: email: Path `email` is required.");
+//       })
+//       .end((err, res)=>{
+//         if (err){
+//           return done(err);
+//         }
+//         done();
+//       });
+//   });
+// });
 
 describe('PATCH /todos/:id', ()=>{
   it('should update the todo', (done)=>{
