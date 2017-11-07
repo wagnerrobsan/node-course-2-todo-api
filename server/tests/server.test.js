@@ -131,33 +131,6 @@ describe('DELETE /todos', ()=>{
       .end(done);
   });
 });
-//
-// describe('POST /users', () => {
-//   it('should not create user with invalid body data', (done) =>{
-//     var wagner = {
-//       name: 'Wagner Roberto',
-//       email: 'wagner@cobham.com',
-//       age: 37
-//     };
-//
-//     request(app)
-//       .post('/users')
-//       .send({
-//         name: 'Wagner Roberto',
-//         age: 37
-//       })
-//       .expect(400)
-//       .expect((res)=>{
-//         expect(res.body.message).toBe("User validation failed: email: Path `email` is required.");
-//       })
-//       .end((err, res)=>{
-//         if (err){
-//           return done(err);
-//         }
-//         done();
-//       });
-//   });
-// });
 
 describe('PATCH /todos/:id', ()=>{
   it('should update the todo', (done)=>{
@@ -254,7 +227,7 @@ describe('PATCH /todos/:id', ()=>{
             expect(user).toBeDefined();
             expect(user.password).not.toBe(password);
             done();
-          });
+          }).catch((e) => done(e));
         });
     });
 
@@ -278,5 +251,77 @@ describe('PATCH /todos/:id', ()=>{
         .expect(400)
         .end(done);
     });
-  })
+  });
+
+  describe('POST /users/login', ()=>{
+    it('should login user and return auth token', (done)=>{
+      request(app)
+        .post('/users/login')
+        .send({
+          email: users[1].email,
+          password: users[1].password
+        })
+        .expect(200)
+        .expect((res)=>{
+          expect(res.headers['x-auth']).toBeDefined();
+        })
+        .end((err, res)=>{
+          if (err){
+            return done(err);
+          }
+
+          User.findById(users[1]._id).then((user) =>{
+            expect(user.tokens[0].access).toBe('auth');
+            expect(user.tokens[0].token).toBe(res.headers['x-auth']);
+            done();
+          }).catch((e) => done(e));
+        });
+    });
+
+    it('should reject valid email but wrong pass return 400', (done)=>{
+      request(app)
+        .post('/users/login')
+        .send({
+          email: users[1].email,
+          password: 'invalidPass'
+        })
+        .expect(400)
+        .expect((res)=>{
+          expect(res.headers['x-auth']).not.toBeDefined();
+        })
+        .end((err, res)=>{
+          if (err){
+            return done(err);
+          }
+
+          User.findById(users[1]._id).then((user) =>{
+            expect(user.tokens.length).toBe(0);
+            done();
+          }).catch((e) => done(e));
+        });
+    });
+
+    it('should reject invalid email and return 404', (done)=>{
+      request(app)
+        .post('/users/login')
+        .send({
+          email: 'invalid@email.com',
+          password: users[1].password
+        })
+        .expect(404)
+        .expect((res)=>{
+          expect(res.headers['x-auth']).not.toBeDefined();
+        })
+        .end((err, res)=>{
+          if (err){
+            return done(err);
+          }
+
+          User.findById(users[1]._id).then((user) =>{
+            expect(user.tokens.length).toBe(0);
+            done();
+          }).catch((e) => done(e));
+        });
+    });
+  });
 });
