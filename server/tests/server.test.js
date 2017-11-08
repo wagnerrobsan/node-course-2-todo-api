@@ -195,7 +195,7 @@ describe('PATCH /todos/:id', ()=>{
       });
   });
 
-  it('should not update the todo when an other user request', (done)=>{
+  it('should not update the todo created by other user', (done)=>{
     var hexId = todos[0]._id;
     var text = 'updated first test';
     request(app)
